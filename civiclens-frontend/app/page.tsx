@@ -23,7 +23,7 @@ import {
   Upload,
   X,
 } from "lucide-react";
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "https://civic-lens1-8w6o7hobz-ai-lover.vercel.app/";
 type Report = {
   id: string;
   problem: string;
