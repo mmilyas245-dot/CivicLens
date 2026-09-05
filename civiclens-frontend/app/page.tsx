@@ -550,7 +550,7 @@ export default function Home() {
                     <ResultBox
                       label="Priority Score"
                       value={
-    analysisResult?.priority ||"—"}
+    analysisResult?.priority_score ||"—"}
                       icon={<Gauge />}
                       accent="cyan"
                     />
@@ -638,7 +638,7 @@ export default function Home() {
                         Risk
                       </div>
                       <p className="text-sm leading-6 text-slate-300">
-                        {analysisResult?.risk_level || "No risk information available."}
+                        {analysisResult?.risk || "No risk information available."}
                       </p>
                     </div>
 
