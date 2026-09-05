@@ -25,6 +25,10 @@ import {
 } from "lucide-react";
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
+const MOTTO =
+  "SEE THE PROBLEM. REPORT IT INSTANTLY. WATCH YOUR CITY GET BETTER.";
+
 type Report = {
   id: string;
   problem: string;
@@ -218,22 +222,22 @@ export default function Home() {
     <main className="min-h-screen bg-[#050816] text-white">
       {/* Background */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute left-[-10%] top-[-15%] h-[500px] w-[500px] rounded-full bg-cyan-500/10 blur-[120px]" />
-        <div className="absolute right-[-10%] top-[20%] h-[500px] w-[500px] rounded-full bg-blue-600/10 blur-[130px]" />
-        <div className="absolute bottom-[-15%] left-[35%] h-[400px] w-[400px] rounded-full bg-violet-600/10 blur-[120px]" />
+        <div className="absolute left-[-10%] top-[-15%] h-[500px] w-[500px] rounded-full bg-fuchsia-500/10 blur-[120px]" />
+        <div className="absolute right-[-10%] top-[20%] h-[500px] w-[500px] rounded-full bg-violet-600/10 blur-[130px]" />
+        <div className="absolute bottom-[-15%] left-[35%] h-[400px] w-[400px] rounded-full bg-amber-500/10 blur-[120px]" />
       </div>
 
       {/* NAVBAR */}
       <nav className="relative z-10 border-b border-white/10 bg-[#050816]">
         <div className="mx-auto flex max-w-[1500px] items-center justify-between px-5 py-4 lg:px-8">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-400/30 bg-cyan-400/10">
-              <Brain className="h-5 w-5 text-cyan-300" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-fuchsia-400/30 bg-fuchsia-400/10">
+              <Brain className="h-5 w-5 text-fuchsia-300" />
             </div>
 
             <div>
               <div className="text-lg font-bold tracking-tight">
-                Civic<span className="text-cyan-300">Lens</span>
+                Civic<span className="text-fuchsia-300">Lens</span>
               </div>
               <div className="text-[9px] font-medium uppercase tracking-[0.25em] text-slate-500">
                 Civic Intelligence Platform
@@ -254,6 +258,30 @@ export default function Home() {
         </div>
       </nav>
 
+      {/* MOTTO TICKER */}
+      <div className="relative z-10 overflow-hidden border-b border-white/10 bg-white/[0.02] py-2.5">
+        <div className="motto-track">
+          {[0, 1].map((groupIndex) => (
+            <div
+              key={groupIndex}
+              className="flex shrink-0 items-center gap-10 pr-10"
+            >
+              {Array.from({ length: 4 }).map((_, i) => (
+                <span
+                  key={i}
+                  className="flex items-center gap-3 whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.3em]"
+                >
+                  <Sparkles className="h-3 w-3 shrink-0 text-violet-300" />
+                  <span className="bg-gradient-to-r from-fuchsia-300 via-violet-300 to-amber-300 bg-clip-text text-transparent">
+                    {MOTTO}
+                  </span>
+                </span>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* CONTENT */}
       <div className="relative z-10 mx-auto max-w-[1500px] px-5 py-8 lg:px-8">
         {/* TAB NAVIGATION */}
@@ -262,7 +290,7 @@ export default function Home() {
             onClick={() => setActiveTab("dashboard")}
             className={`border-b-2 px-4 pb-4 text-sm font-medium transition ${
               activeTab === "dashboard"
-                ? "border-cyan-400 text-white"
+                ? "border-fuchsia-400 text-white"
                 : "border-transparent text-slate-500 hover:text-white"
             }`}
           >
@@ -273,7 +301,7 @@ export default function Home() {
             onClick={() => setActiveTab("command")}
             className={`border-b-2 px-4 pb-4 text-sm font-medium transition ${
               activeTab === "command"
-                ? "border-cyan-400 text-white"
+                ? "border-fuchsia-400 text-white"
                 : "border-transparent text-slate-500 hover:text-white"
             }`}
           >
@@ -286,7 +314,7 @@ export default function Home() {
             {/* HERO */}
             <section className="mb-8">
               <div className="max-w-4xl">
-                <div className="mb-4 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-cyan-300">
+                <div className="mb-4 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-fuchsia-300">
                   <Sparkles className="h-4 w-4" />
                   AI-powered civic infrastructure
                 </div>
@@ -294,7 +322,7 @@ export default function Home() {
                 <h1 className="text-4xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
                   Turn civic problems
                   <br />
-                  <span className="bg-gradient-to-r from-cyan-300 via-blue-400 to-violet-400 bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-fuchsia-300 via-violet-400 to-amber-300 bg-clip-text text-transparent">
                     into action.
                   </span>
                 </h1>
@@ -357,8 +385,8 @@ export default function Home() {
                       onDrop={handleDrop}
                       className={`group flex min-h-[330px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed transition ${
                         dragging
-                          ? "border-cyan-400 bg-cyan-400/10"
-                          : "border-white/15 bg-white/[0.02] hover:border-cyan-400/40 hover:bg-white/[0.04]"
+                          ? "border-fuchsia-400 bg-fuchsia-400/10"
+                          : "border-white/15 bg-white/[0.02] hover:border-fuchsia-400/40 hover:bg-white/[0.04]"
                       }`}
                       onClick={() =>
                         document.getElementById("file-upload")?.click()
@@ -372,8 +400,8 @@ export default function Home() {
                         onChange={(e) => handleFile(e.target.files?.[0])}
                       />
 
-                      <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border border-cyan-400/20 bg-cyan-400/10">
-                        <Upload className="h-7 w-7 text-cyan-300" />
+                      <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border border-fuchsia-400/20 bg-fuchsia-400/10">
+                        <Upload className="h-7 w-7 text-fuchsia-300" />
                       </div>
 
                       <h3 className="text-lg font-semibold">
@@ -420,7 +448,7 @@ export default function Home() {
                   <button
                     onClick={handleAnalyze}
                     disabled={!file || analyzing}
-                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-5 py-4 text-sm font-semibold shadow-lg shadow-cyan-500/10 transition hover:scale-[1.01] hover:shadow-cyan-500/20 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-fuchsia-500 via-violet-500 to-amber-400 px-5 py-4 text-sm font-semibold shadow-lg shadow-fuchsia-500/10 transition hover:scale-[1.01] hover:shadow-fuchsia-500/20 disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     {analyzing ? (
                       <>
@@ -506,14 +534,14 @@ export default function Home() {
                   )}
 
                   {analyzing && (
-                    <div className="mt-6 rounded-xl border border-cyan-400/20 bg-cyan-400/5 p-4">
+                    <div className="mt-6 rounded-xl border border-fuchsia-400/20 bg-fuchsia-400/5 p-4">
                       <div className="flex items-center gap-3">
                         <div className="relative">
-                          <div className="h-3 w-3 animate-ping rounded-full bg-cyan-400" />
-                          <div className="absolute inset-0 h-3 w-3 rounded-full bg-cyan-400" />
+                          <div className="h-3 w-3 animate-ping rounded-full bg-fuchsia-400" />
+                          <div className="absolute inset-0 h-3 w-3 rounded-full bg-fuchsia-400" />
                         </div>
                         <div>
-                          <div className="text-sm font-medium text-cyan-200">
+                          <div className="text-sm font-medium text-fuchsia-200">
                             Agent is reasoning...
                           </div>
                           <div className="mt-1 text-xs text-slate-500">
@@ -696,7 +724,7 @@ export default function Home() {
                             <span className="text-xs text-slate-500">
                               Existing Report
                             </span>
-                            <span className="font-mono text-sm text-cyan-300">
+                            <span className="font-mono text-sm text-fuchsia-300">
                               #{agentResult.report_id}
                             </span>
                           </div>
@@ -743,7 +771,7 @@ export default function Home() {
                             <span className="text-xs text-slate-500">
                               New Report
                             </span>
-                            <span className="font-mono text-sm text-cyan-300">
+                            <span className="font-mono text-sm text-fuchsia-300">
                               #{agentResult.report_id}
                             </span>
                           </div>
@@ -810,7 +838,7 @@ export default function Home() {
                         key={report.id}
                         className="border-b border-white/5 transition hover:bg-white/[0.02]"
                       >
-                        <td className="px-5 py-4 font-mono text-xs text-cyan-300">
+                        <td className="px-5 py-4 font-mono text-xs text-fuchsia-300">
                           {report.id}
                         </td>
 
@@ -881,7 +909,7 @@ function Stat({
   return (
     <div className="glass-panel p-4">
       <div className="flex items-start justify-between">
-        <div className="rounded-lg border border-white/10 bg-white/[0.03] p-2 text-cyan-300">
+        <div className="rounded-lg border border-white/10 bg-white/[0.03] p-2 text-fuchsia-300">
           <div className="h-4 w-4">{icon}</div>
         </div>
 
@@ -905,7 +933,7 @@ function PanelHeader({
 }) {
   return (
     <div className="flex items-center gap-3 border-b border-white/10 px-5 py-4">
-      <div className="rounded-lg border border-cyan-400/20 bg-cyan-400/10 p-2 text-cyan-300">
+      <div className="rounded-lg border border-fuchsia-400/20 bg-fuchsia-400/10 p-2 text-fuchsia-300">
         <div className="h-4 w-4">{icon}</div>
       </div>
 
@@ -937,7 +965,7 @@ function AgentStep({
           done
             ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300"
             : active
-              ? "border-cyan-400/30 bg-cyan-400/10 text-cyan-300"
+              ? "border-fuchsia-400/30 bg-fuchsia-400/10 text-fuchsia-300"
               : "border-white/10 bg-white/[0.02] text-slate-600"
         }`}
       >
@@ -958,7 +986,7 @@ function AgentStep({
       </div>
 
       {active && (
-        <span className="h-2 w-2 animate-pulse rounded-full bg-cyan-400" />
+        <span className="h-2 w-2 animate-pulse rounded-full bg-fuchsia-400" />
       )}
     </div>
   );
@@ -978,7 +1006,7 @@ function ResultBox({
   return (
     <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4">
       <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-        <span className={accent === "red" ? "text-red-300" : "text-cyan-300"}>
+        <span className={accent === "red" ? "text-red-300" : "text-fuchsia-300"}>
           {icon}
         </span>
         {label}
@@ -989,7 +1017,7 @@ function ResultBox({
           accent === "red"
             ? "text-red-300"
             : accent === "cyan"
-              ? "text-cyan-300"
+              ? "text-fuchsia-300"
               : "text-white"
         }`}
       >
@@ -1027,7 +1055,7 @@ function Status({
 }) {
   const classes = {
     Pending: "bg-amber-400/10 text-amber-300",
-    Processing: "bg-cyan-400/10 text-cyan-300",
+    Processing: "bg-fuchsia-400/10 text-fuchsia-300",
     Resolved: "bg-emerald-400/10 text-emerald-300",
   };
 
@@ -1044,13 +1072,13 @@ function CommandCenter() {
   return (
     <div>
       <div className="mb-8">
-        <div className="mb-3 flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-cyan-300">
+        <div className="mb-3 flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-fuchsia-300">
           <Navigation className="h-4 w-4" />
           Live civic intelligence
         </div>
 
         <h1 className="text-4xl font-bold">
-          Civic <span className="text-cyan-300">Command Center</span>
+          Civic <span className="text-fuchsia-300">Command Center</span>
         </h1>
 
         <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-500">
@@ -1168,7 +1196,7 @@ function CommandCenter() {
             >
               <div>
                 <div className="flex items-center gap-3">
-                  <span className="font-mono text-xs text-cyan-300">
+                  <span className="font-mono text-xs text-fuchsia-300">
                     {report.id}
                   </span>
                   <Severity severity={report.severity} />

@@ -25,6 +25,92 @@ body {
     Arial,
     Helvetica,
     sans-serif;
+}@import "tailwindcss";
+
+:root {
+  --background: #050816;
+  --foreground: #f8fafc;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: #050816;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(217, 70, 239, 0.05), transparent 30%),
+    radial-gradient(circle at 90% 20%, rgba(139, 92, 246, 0.05), transparent 30%),
+    radial-gradient(circle at 50% 100%, rgba(245, 158, 11, 0.035), transparent 35%),
+    #050816;
+  color: var(--foreground);
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+}
+
+button {
+  font-family: inherit;
+}
+
+::selection {
+  background: rgba(232, 121, 249, 0.28);
+  color: white;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #050816;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+.glass-panel {
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  background: rgba(10, 18, 35, 0.95);
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+.motto-track {
+  display: flex;
+  width: max-content;
+  animation: motto-scroll 26s linear infinite;
+}
+
+@keyframes motto-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motto-track {
+    animation: none;
+  }
 }
 
 button {
