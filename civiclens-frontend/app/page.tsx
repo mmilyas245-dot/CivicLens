@@ -494,10 +494,7 @@ export default function Home() {
                     <ResultBox
                       label="Priority Score"
                       value={
-    analysisResult?.priority_score !== undefined
-      ? `${analysisResult.priority_score}/10`
-      : "—"
-  }
+    analysisResult?.priority ||"—"}
                       icon={<Gauge />}
                       accent="cyan"
                     />
@@ -576,10 +573,7 @@ export default function Home() {
                         AI Description
                       </div>
                       <p className="text-sm leading-6 text-slate-300">
-                        A significant road surface defect was detected. The
-                        pothole appears large enough to create a safety hazard
-                        for vehicles and motorcycles, particularly during
-                        nighttime or wet conditions.
+                        {analysisResult?.description || "No description available."}
                       </p>
                     </div>
 
@@ -588,7 +582,7 @@ export default function Home() {
                         Risk
                       </div>
                       <p className="text-sm leading-6 text-slate-300">
-                        Vehicle damage and traffic accident risk.
+                        {analysisResult?.risk_level || "No risk information available."}
                       </p>
                     </div>
 
@@ -597,7 +591,7 @@ export default function Home() {
                         Recommended Action
                       </div>
                       <p className="text-sm leading-6 text-slate-300">
-                        Inspect and repair the damaged road section urgently.
+                        {analysisResult?.recommended_action || "No recommended action available."}
                       </p>
                     </div>
                   </div>
