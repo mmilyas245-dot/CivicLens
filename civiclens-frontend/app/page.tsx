@@ -68,7 +68,35 @@ const demoReports: Report[] = [
     status: "Resolved",
   },
 ];
+const getUserLocation = () => {
+  if (!navigator.geolocation) {
+    alert("Geolocation is not supported by this browser.");
+    return;
+  }
 
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+      const accuracy = position.coords.accuracy;
+
+      console.log("Latitude:", latitude);
+      console.log("Longitude:", longitude);
+      console.log("Accuracy:", accuracy, "meters");
+
+      // Send these to your Flask backend
+    },
+    (error) => {
+      console.error("Location error:", error);
+      alert("Please allow location access to continue.");
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 0,
+    }
+  );
+};
 export default function Home() {
   const [activeTab, setActiveTab] = useState<"dashboard" | "command">(
     "dashboard"
