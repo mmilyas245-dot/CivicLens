@@ -80,6 +80,8 @@ export default function Home() {
   const [dragging, setDragging] = useState(false);
   // ADD THIS
   const [analysisResult, setAnalysisResult] = useState<any>(null);
+  const [agentResult, setAgentResult] = useState<any>(null);
+  const [reportRecord, setReportRecord] = useState<any>(null);
 
   const [userLocation, setUserLocation] = useState<{
   latitude: number;
@@ -184,6 +186,12 @@ export default function Home() {
 
     if (data.success) {
       setAnalysisResult(data.analysis);
+      setAgentResult(data.agent);
+
+      const matchedReport = data.reports?.find(
+        (r: any) => r.report_id === data.agent?.report_id
+      );
+      setReportRecord(matchedReport || null);
     }
 
     setAnalyzed(true);
@@ -191,7 +199,9 @@ export default function Home() {
     console.error("CivicLens analysis failed:", error);
 
     alert(
-      "CivicLens could not connect to the AI backend. Make sure Flask is running on port 5000."
+      `CivicLens could not connect to the AI backend at ${API_BASE_URL}. ` +
+        "If you're running locally, make sure Flask is running. " +
+        "If this is the deployed site, check that NEXT_PUBLIC_API_URL is set correctly."
     );
   } finally {
     setAnalyzing(false);
@@ -562,7 +572,7 @@ export default function Home() {
                         icon={<CircleDot />}
                       />
                     </div>
-                    {analysisResult?.report && (
+                    {agentResult?.report_id && (
   <div className="mt-6 rounded-xl border border-white/10 bg-white/[0.03] p-5">
     <div className="mb-2 flex items-center gap-2">
       <CheckCircle2 className="h-5 w-5 text-emerald-400" />
@@ -576,19 +586,20 @@ export default function Home() {
       <div>
         <p className="text-white/40">Report ID</p>
         <p className="mt-1 font-mono">
-          {analysisResult.report.id}
+          #{agentResult.report_id}
         </p>
       </div>
 
       <div>
         <p className="text-white/40">Status</p>
         <p className="mt-1">
-          {analysisResult.report.status}
+          {reportRecord?.status || "Pending"}
         </p>
       </div>
     </div>
   </div>
-)}{analysisResult?.duplicate_detected && (
+)}
+{agentResult?.action === "updated" && (
   <div className="mt-5 rounded-xl border border-amber-400/20 bg-amber-400/5 p-5">
     <div className="flex items-start gap-3">
       <AlertTriangle className="mt-0.5 h-5 w-5 text-amber-400" />
@@ -605,7 +616,8 @@ export default function Home() {
       </div>
     </div>
   </div>
-)}{analysisResult?.report && !analysisResult?.duplicate_detected && (
+)}
+{agentResult?.action === "created" && (
   <div className="mt-5 rounded-xl border border-emerald-400/20 bg-emerald-400/5 p-5">
     <div className="flex items-start gap-3">
       <CheckCircle2 className="mt-0.5 h-5 w-5 text-emerald-400" />
@@ -661,50 +673,97 @@ export default function Home() {
                   />
 
                   <div className="p-5">
-                    <div className="rounded-2xl border border-amber-400/20 bg-amber-400/5 p-5">
-                      <div className="flex items-start gap-3">
-                        <div className="rounded-lg bg-amber-400/10 p-2">
-                          <FileWarning className="h-5 w-5 text-amber-300" />
-                        </div>
-
-                        <div>
-                          <div className="font-semibold text-amber-200">
-                            Existing report found
+                    {agentResult?.action === "updated" ? (
+                      <div className="rounded-2xl border border-amber-400/20 bg-amber-400/5 p-5">
+                        <div className="flex items-start gap-3">
+                          <div className="rounded-lg bg-amber-400/10 p-2">
+                            <FileWarning className="h-5 w-5 text-amber-300" />
                           </div>
-                          <p className="mt-1 text-xs leading-5 text-slate-400">
-                            CivicLens detected a nearby report with a similar
-                            issue and prevented a duplicate submission.
-                          </p>
+
+                          <div>
+                            <div className="font-semibold text-amber-200">
+                              Existing report found
+                            </div>
+                            <p className="mt-1 text-xs leading-5 text-slate-400">
+                              CivicLens detected a nearby report with a similar
+                              issue and prevented a duplicate submission.
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="mt-5 rounded-xl border border-white/10 bg-black/20 p-4">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-slate-500">
+                              Existing Report
+                            </span>
+                            <span className="font-mono text-sm text-cyan-300">
+                              #{agentResult.report_id}
+                            </span>
+                          </div>
+
+                          <div className="mt-3 flex items-center justify-between">
+                            <span className="text-xs text-slate-500">
+                              Distance
+                            </span>
+                            <span className="text-sm text-white">
+                              {agentResult.nearby_reports?.[0]?.distance_km ?? "—"} km
+                            </span>
+                          </div>
+
+                          <div className="mt-3 flex items-center justify-between">
+                            <span className="text-xs text-slate-500">
+                              Status
+                            </span>
+                            <span className="rounded-full bg-amber-400/10 px-2 py-1 text-[10px] font-medium text-amber-300">
+                              {(reportRecord?.status || "Pending").toUpperCase()}
+                            </span>
+                          </div>
                         </div>
                       </div>
+                    ) : agentResult?.action === "created" ? (
+                      <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/5 p-5">
+                        <div className="flex items-start gap-3">
+                          <div className="rounded-lg bg-emerald-400/10 p-2">
+                            <CheckCircle2 className="h-5 w-5 text-emerald-300" />
+                          </div>
 
-                      <div className="mt-5 rounded-xl border border-white/10 bg-black/20 p-4">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs text-slate-500">
-                            Existing Report
-                          </span>
-                          <span className="font-mono text-sm text-cyan-300">
-                            #CL-0039
-                          </span>
+                          <div>
+                            <div className="font-semibold text-emerald-200">
+                              New report created
+                            </div>
+                            <p className="mt-1 text-xs leading-5 text-slate-400">
+                              No matching report was nearby, so CivicLens
+                              filed this as a new civic issue.
+                            </p>
+                          </div>
                         </div>
 
-                        <div className="mt-3 flex items-center justify-between">
-                          <span className="text-xs text-slate-500">
-                            Distance
-                          </span>
-                          <span className="text-sm text-white">0.2 km</span>
-                        </div>
+                        <div className="mt-5 rounded-xl border border-white/10 bg-black/20 p-4">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-slate-500">
+                              New Report
+                            </span>
+                            <span className="font-mono text-sm text-cyan-300">
+                              #{agentResult.report_id}
+                            </span>
+                          </div>
 
-                        <div className="mt-3 flex items-center justify-between">
-                          <span className="text-xs text-slate-500">
-                            Status
-                          </span>
-                          <span className="rounded-full bg-amber-400/10 px-2 py-1 text-[10px] font-medium text-amber-300">
-                            PENDING
-                          </span>
+                          <div className="mt-3 flex items-center justify-between">
+                            <span className="text-xs text-slate-500">
+                              Status
+                            </span>
+                            <span className="rounded-full bg-emerald-400/10 px-2 py-1 text-[10px] font-medium text-emerald-300">
+                              {(reportRecord?.status || "Pending").toUpperCase()}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    ) : (
+                      <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 text-sm text-slate-500">
+                        {agentResult?.final_response ||
+                          "Waiting for the AI agent's decision."}
+                      </div>
+                    )}
 
                     <div className="mt-4 rounded-xl border border-white/10 p-4">
                       <div className="flex items-center gap-3">

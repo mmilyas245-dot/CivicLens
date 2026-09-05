@@ -4,3 +4,4 @@ python-dotenv
 dashscope
 openai
 pillow
+requests

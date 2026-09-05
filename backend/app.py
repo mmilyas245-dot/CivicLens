@@ -796,7 +796,7 @@ or update an existing report.
 
         assistant_message = response.choices[0].message
 
-        messages.append(assistant_message)
+        messages.append(assistant_message.model_dump(exclude_none=True))
 
         # ----------------------------------------------------
         # Agent finished
@@ -1209,10 +1209,4 @@ if __name__ == "__main__":
         host="0.0.0.0",
         port=5000,
         debug=True
-    )
-if __name__ == "__main__":
-    app.run(
-        host="0.0.0.0",
-        port=7860,
-        debug=False
     )
