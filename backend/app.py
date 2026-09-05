@@ -10,7 +10,7 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 from PIL import Image
 from openai import OpenAI
-
+import requests
 
 # ============================================================
 # CIVICLENS BACKEND
@@ -64,37 +64,123 @@ civic_reports = []
 # LOCATION TOOL
 # ============================================================
 
+# ============================================================
+# LOCATION TOOL
+# ============================================================
+
+import requests
+
+
 def get_location(latitude=None, longitude=None):
     """
-    Get the user's location.
+    Get the user's real browser GPS location.
 
-    The notebook currently uses test coordinates.
-    The frontend will eventually send real browser GPS coordinates.
+    If frontend sends coordinates:
+        latitude + longitude
+    → use them
+    → reverse geocode with OpenStreetMap Nominatim
+
+    If no coordinates are provided:
+        use CivicLens test coordinates.
     """
 
-    # If frontend provides coordinates, use them.
+    # --------------------------------------------------------
+    # REAL GPS LOCATION FROM FRONTEND
+    # --------------------------------------------------------
+
     if latitude is not None and longitude is not None:
 
-        return {
-            "success": True,
-            "location": {
-                "latitude": float(latitude),
-                "longitude": float(longitude)
-            },
-            "message": "Location received from frontend."
-        }
+        latitude = float(latitude)
+        longitude = float(longitude)
 
-    # Notebook's current fallback/test coordinates.
+        try:
+
+            url = "https://nominatim.openstreetmap.org/reverse"
+
+            params = {
+                "lat": latitude,
+                "lon": longitude,
+                "format": "jsonv2",
+                "addressdetails": 1
+            }
+
+            headers = {
+                "User-Agent": "CivicLens/1.0"
+            }
+
+            response = requests.get(
+                url,
+                params=params,
+                headers=headers,
+                timeout=10
+            )
+
+            response.raise_for_status()
+
+            data = response.json()
+
+            return {
+                "success": True,
+
+                "location": {
+                    "latitude": latitude,
+                    "longitude": longitude,
+
+                    "address":
+                        data.get("display_name"),
+
+                    "address_details":
+                        data.get("address", {})
+                },
+
+                "message":
+                    "Real GPS location received and reverse-geocoded."
+            }
+
+        except Exception as e:
+
+            print(
+                f"OpenStreetMap error: {e}"
+            )
+
+            # GPS is still valid even if
+            # address lookup fails.
+
+            return {
+                "success": True,
+
+                "location": {
+                    "latitude": latitude,
+                    "longitude": longitude,
+                    "address": None
+                },
+
+                "message":
+                    "GPS received but address lookup failed."
+            }
+
+    # --------------------------------------------------------
+    # TEST / FALLBACK LOCATION
+    # --------------------------------------------------------
+
     return {
+
         "success": True,
+
         "location": {
+
             "latitude": 34.0151,
-            "longitude": 71.5249
+
+            "longitude": 71.5249,
+
+            "address":
+                "CivicLens test location"
+
         },
-        "message": "Using CivicLens test location."
+
+        "message":
+            "Using CivicLens test location."
     }
-
-
 # ============================================================
 # DISTANCE CALCULATION
 # ============================================================
@@ -904,6 +990,11 @@ def health():
     "/analyze",
     methods=["POST"]
 )
+# ============================================================
+# ANALYZE IMAGE API
+# ============================================================
+
+@app.route("/analyze", methods=["POST"])
 def analyze():
 
     try:
@@ -915,11 +1006,8 @@ def analyze():
         if "image" not in request.files:
 
             return jsonify({
-
                 "success": False,
-
-                "error":
-                    "No image uploaded."
+                "error": "No image uploaded."
             }), 400
 
         image = request.files["image"]
@@ -927,15 +1015,12 @@ def analyze():
         if image.filename == "":
 
             return jsonify({
-
                 "success": False,
-
-                "error":
-                    "No image selected."
+                "error": "No image selected."
             }), 400
 
         # ----------------------------------------------------
-        # Get location from frontend
+        # Get GPS coordinates from frontend
         # ----------------------------------------------------
 
         latitude = request.form.get(
@@ -948,9 +1033,18 @@ def analyze():
             type=float
         )
 
+        accuracy = request.form.get(
+            "accuracy",
+            type=float
+        )
+
+        print("\n========== LOCATION ==========")
+        print("Frontend Latitude:", latitude)
+        print("Frontend Longitude:", longitude)
+        print("Frontend Accuracy:", accuracy)
+
         # ----------------------------------------------------
-        # Use notebook fallback if GPS
-        # isn't provided yet.
+        # Get location
         # ----------------------------------------------------
 
         location_result = get_location(
@@ -958,20 +1052,17 @@ def analyze():
             longitude=longitude
         )
 
-        location = (
-            location_result["location"]
-        )
+        location = location_result["location"]
 
+        # Get final coordinates
         latitude = location["latitude"]
         longitude = location["longitude"]
 
-        print(
-            f"Location: "
-            f"{latitude}, {longitude}"
-        )
+        print("Final Latitude:", latitude)
+        print("Final Longitude:", longitude)
 
         # ----------------------------------------------------
-        # Qwen Vision
+        # QWEN VISION
         # ----------------------------------------------------
 
         print(
@@ -990,20 +1081,30 @@ def analyze():
         )
 
         # ----------------------------------------------------
-        # Add location to report
+        # Add COMPLETE location to report
         # ----------------------------------------------------
 
         report["location"] = {
 
-            "latitude":
-                latitude,
+            "latitude": latitude,
 
-            "longitude":
-                longitude
+            "longitude": longitude,
+
+            "accuracy": accuracy,
+
+            "address": location.get(
+                "address"
+            ),
+
+            "address_details":
+                location.get(
+                    "address_details",
+                    {}
+                )
         }
 
         # ----------------------------------------------------
-        # Run CivicLens Agent
+        # CIVICLENS AGENT
         # ----------------------------------------------------
 
         print(
@@ -1020,7 +1121,7 @@ def analyze():
         )
 
         # ----------------------------------------------------
-        # Return everything to Next.js
+        # RETURN TO NEXT.JS
         # ----------------------------------------------------
 
         return jsonify({
@@ -1034,6 +1135,7 @@ def analyze():
             "location": location,
 
             "reports": civic_reports
+
         })
 
     except Exception as e:
@@ -1042,15 +1144,17 @@ def analyze():
             "\n========== ERROR ==========\n"
         )
 
-        print(str(e))
+        print(
+            str(e)
+        )
 
         return jsonify({
 
             "success": False,
 
             "error": str(e)
-        }), 500
 
+        }), 500
 
 # ============================================================
 # GET ALL REPORTS
