@@ -900,9 +900,16 @@ export default function Home() {
         )}
 
         {/* FOOTER */}
-        <footer className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-white/10 py-6 text-xs text-slate-600 sm:flex-row">
+                <footer className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-white/10 py-6 text-xs text-slate-600 sm:flex-row">
           <div>
-            CivicLens — AI-powered civic intelligence platform
+            <div>CivicLens — AI-powered civic intelligence platform</div>
+            <div className="mt-1 text-[11px]">
+              Built by{" "}
+              <span className="bg-gradient-to-r from-fuchsia-300 via-violet-300 to-amber-300 bg-clip-text font-semibold text-transparent">
+                Muhammad Ilyas
+              </span>{" "}
+              — AI/ML/DL
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
