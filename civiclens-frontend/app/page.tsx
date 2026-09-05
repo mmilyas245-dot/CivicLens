@@ -68,35 +68,7 @@ const demoReports: Report[] = [
     status: "Resolved",
   },
 ];
-const getUserLocation = () => {
-  if (!navigator.geolocation) {
-    alert("Geolocation is not supported by this browser.");
-    return;
-  }
 
-  navigator.geolocation.getCurrentPosition(
-    (position) => {
-      const latitude = position.coords.latitude;
-      const longitude = position.coords.longitude;
-      const accuracy = position.coords.accuracy;
-
-      console.log("Latitude:", latitude);
-      console.log("Longitude:", longitude);
-      console.log("Accuracy:", accuracy, "meters");
-
-      // Send these to your Flask backend
-    },
-    (error) => {
-      console.error("Location error:", error);
-      alert("Please allow location access to continue.");
-    },
-    {
-      enableHighAccuracy: true,
-      timeout: 10000,
-      maximumAge: 0,
-    }
-  );
-};
 export default function Home() {
   const [activeTab, setActiveTab] = useState<"dashboard" | "command">(
     "dashboard"
@@ -106,7 +78,53 @@ export default function Home() {
   const [analyzing, setAnalyzing] = useState(false);
   const [analyzed, setAnalyzed] = useState(false);
   const [dragging, setDragging] = useState(false);
+  // ADD THIS
   const [analysisResult, setAnalysisResult] = useState<any>(null);
+
+  const [userLocation, setUserLocation] = useState<{
+  latitude: number;
+  longitude: number;
+  accuracy: number;
+} | null>(null);
+  const getUserLocation = (): Promise<{
+    latitude: number;
+    longitude: number;
+    accuracy: number;
+  }> => {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        alert("Geolocation is not supported by this browser.");
+        reject(new Error("Geolocation is not supported."));
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const location = {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            accuracy: position.coords.accuracy,
+          };
+
+          console.log("REAL GPS LOCATION:", location);
+
+          setUserLocation(location);
+
+          resolve(location);
+        },
+        (error) => {
+          console.error("Location error:", error);
+          alert("Please allow location access to submit your civic report.");
+          reject(error);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0,
+        }
+      );
+    });
+  };
 
   function handleFile(selectedFile: File | undefined) {
     if (!selectedFile) return;
@@ -134,9 +152,19 @@ export default function Home() {
   setAnalyzed(false);
 
   try {
+    // Get REAL GPS location
+    const location = await getUserLocation();
+
+    console.log("Location being sent to backend:", location);
+
     const formData = new FormData();
 
     formData.append("image", file);
+     // Send GPS
+    formData.append("latitude", location.latitude.toString());
+    formData.append("longitude", location.longitude.toString());
+    formData.append("accuracy", location.accuracy.toString());
+
 
     // Send the user's image to Flask
     const response = await fetch(`${API_BASE_URL}/analyze`, {
