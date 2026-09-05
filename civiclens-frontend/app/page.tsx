@@ -151,13 +151,7 @@ export default function Home() {
     handleFile(event.dataTransfer.files?.[0]);
   }
 
-  const handleAnalyze = async () => {
-  if (!file) return;
-
-  setAnalyzing(true);
-  setAnalyzed(false);
-
-  try {
+  const runAnalysis = async () => {
     // Get REAL GPS location
     const location = await getUserLocation();
 
@@ -165,7 +159,7 @@ export default function Home() {
 
     const formData = new FormData();
 
-    formData.append("image", file);
+    formData.append("image", file as File);
      // Send GPS
     formData.append("latitude", location.latitude.toString());
     formData.append("longitude", location.longitude.toString());
@@ -199,14 +193,39 @@ export default function Home() {
     }
 
     setAnalyzed(true);
-  } catch (error) {
-    console.error("CivicLens analysis failed:", error);
+  };
 
-    alert(
-      `CivicLens could not connect to the AI backend at ${API_BASE_URL}. ` +
+  const handleAnalyze = async () => {
+  if (!file) return;
+
+  setAnalyzing(true);
+  setAnalyzed(false);
+
+  try {
+    await runAnalysis();
+  } catch (firstError) {
+    // The very first request right after the browser's location
+    // permission prompt closes is sometimes cancelled by the browser
+    // itself (the tab was briefly backgrounded). Silently retry once
+    // before bothering the user with an error.
+    console.warn(
+      "CivicLens first attempt failed, retrying once:",
+      firstError
+    );
+
+    await new Promise((resolve) => setTimeout(resolve, 1200));
+
+    try {
+      await runAnalysis();
+    } catch (error) {
+      console.error("CivicLens analysis failed after retry:", error);
+
+      alert(
+        `CivicLens could not connect to the AI backend at ${API_BASE_URL}. ` +
         "If you're running locally, make sure Flask is running. " +
         "If this is the deployed site, check that NEXT_PUBLIC_API_URL is set correctly."
-    );
+      );
+    }
   } finally {
     setAnalyzing(false);
   }
@@ -881,16 +900,9 @@ export default function Home() {
         )}
 
         {/* FOOTER */}
-               <footer className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-white/10 py-6 text-xs text-slate-600 sm:flex-row">
+        <footer className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-white/10 py-6 text-xs text-slate-600 sm:flex-row">
           <div>
-            <div>CivicLens — AI-powered civic intelligence platform</div>
-            <div className="mt-1 text-[11px]">
-              Built by{" "}
-              <span className="bg-gradient-to-r from-fuchsia-300 via-violet-300 to-amber-300 bg-clip-text font-semibold text-transparent">
-                Muhammad Ilyas
-              </span>{" "}
-              — AI/ML/DL
-            </div>
+            CivicLens — AI-powered civic intelligence platform
           </div>
           <div className="flex items-center gap-2">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
