@@ -125,7 +125,10 @@ export default function Home() {
     console.log("CivicLens AI Response:", data);
 
     // Store the real backend response
-    setAnalysisResult(data);
+
+    if (data.success) {
+      setAnalysisResult(data.analysis);
+    }
 
     setAnalyzed(true);
   } catch (error) {
